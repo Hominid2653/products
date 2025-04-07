@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sian Flowers - Products</title>
+    <style>
+        /* Main container styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .shop-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Iframe styles */
+        .products-frame-container {
+            width: 100%;
+            height: 800px; /* Adjust based on your content */
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #products-frame {
+            width: 100%;
+            height: 1500px; /* Make taller than visible area */
+            border: none;
+            margin-top: -150px; /* Adjust to position content correctly */
+            margin-bottom: -200px; /* Hide bottom content */
+        }
+        
+        /* Loader */
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+            background: rgba(255,255,255,0.8);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .loader-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="shop-container">
+        <h1>Our Products</h1>
+        
+        <div class="products-frame-container">
+            <div class="loader" id="loader">
+                <div class="loader-spinner"></div>
+                <p>Loading products...</p>
+            </div>
+            
+            <iframe id="products-frame" src="https://demo.sianflowers.co.ke/shop" onload="frameLoaded()"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function frameLoaded() {
+            // Hide the loader
+            document.getElementById('loader').style.display = 'none';
+            
+            // Apply custom styles to show only the products section
+            applyCustomStyles();
+        }
+        
+        function applyCustomStyles() {
+            try {
+                const frame = document.getElementById('products-frame');
+                const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                
+                // Create a style element to hide unwanted content
+                const styleEl = document.createElement('style');
+                styleEl.textContent = `
+                    /* Hide everything except the product section */
+                    body > *:not(.site-content),
+                    .site-header, .site-footer, 
+                    .entry-header, .entry-title,
+                    .woocommerce-breadcrumb,
+                    .woocommerce-notices-wrapper,
+                    .pagination,
+                    footer, header, nav {
+                        display: none !important;
+                    }
+                    
+                    /* Show only the products section */
+                    body, .site, .site-content, .content-area, 
+                    .site-main, .woocommerce, .products {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        max-width: 100% !important;
+                        width: 100% !important;
+                    }
+                    
+                    /* Product grid styling */
+                    ul.products {
+                        display: grid !important;
+                        grid-template-columns: repeat(4, 1fr) !important;
+                        gap: 20px !important;
+                    }
+                    
+                    .product {
+                        background-color: #fff !important;
+                        transition: transform 0.3s !important;
+                        text-align: center !important;
+                    }
+                    
+                    .product:hover {
+                        transform: translateY(-5px) !important;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+                    }
+                    
+                    /* Keep shop filter sidebar visible */
+                    .shop-filter-sidebar {
+                        display: block !important;
+                    }
+
+                    /* Target and hide the shop banner */
+.woocommerce-products-header,
+header.entry-header,
+.page-header,
+.shop-header,
+div.banner,
+section.banner,
+div.hero,
+section.hero,
+.breadcrumb-wrapper {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+}
+                `;
+                
+                frameDoc.head.appendChild(styleEl);
+                
+                // Adjust iframe height to match content
+                setTimeout(() => {
+                    const productsSection = frameDoc.querySelector('.products');
+                    if (productsSection) {
+                        const productsHeight = productsSection.offsetHeight;
+                        document.querySelector('.products-frame-container').style.height = 
+                            (productsHeight + 300) + 'px'; // Add some extra space
+                    }
+                }, 500);
+                
+            } catch (e) {
+                console.error("Error applying custom styles:", e);
+                // If cross-origin issue occurs, try using a proxy approach instead
+            }
+        }
+    </script>
+</body>
+</html>

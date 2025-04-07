@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 30px 0;
+      color: #222;
+    }
+
+    .main-container {
+      display: flex;
+      max-width: 1400px;
+      margin: auto;
+      padding: 20px;
+      gap: 30px;
+    }
+
+    .sidebar {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      max-width: 250px;
+      height: fit-content;
+    }
+
+    .sidebar h3 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: #444;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+
+    .sidebar input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar .filter-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-group h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #e76f51;
+      padding-bottom: 5px;
+    }
+
+    .filter-group label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #555;
+      cursor: pointer;
+    }
+
+    .filter-group label input {
+      margin-right: 10px;
+      accent-color: #e76f51; /* Modern checkbox color */
+    }
+
+    .color-filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .color-filters span {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-block;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border 0.2s;
+    }
+
+    .color-filters span:hover {
+      border: 2px solid #e76f51;
+      transform: scale(1.1);
+    }
+
+    .color-filters span.active {
+      border: 2px solid #e76f51;
+    }
+
+    .shop-container {
+      flex: 3;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .product-card {
+      background: #fff;
+      width: 280px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+    }
+
+    .product-details {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .product-details h3 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .product-details p {
+      color: #e76f51;
+      margin-bottom: 10px;
+    }
+
+    .view-product {
+      background: #cd2653;
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .view-product:hover {
+      background-color: #f5a623;
+    }
+
+    .pagination {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .pagination button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background: #cd076a;
+      color: white;
+      border-radius: 5px;
+      margin: 0 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .pagination button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .no-products {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 40px;
+      color: #888;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      display:flex;
+      justify-content: center;
+    }
+
+    .sub-category {
+      margin-left: 20px;
+      padding-left: 10px;
+      border-left: 2px solid #e76f51;
+    }
+
+    .sub-category label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* Filter Container */
+    .filter-container {
+      position: relative;
+    }
+
+    /* Filter Toggle Button */
+    .filter-toggle {
+      display: none;
+      background-color: #e76f51;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    /* Filter Sidebar */
+    #filterSidebar {
+      display: block;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Sub-category Styling */
+    .sub-category {
+      margin-left: 20px;
+      padding-left: 10px;
+      border-left: 2px solid #e76f51;
+    }
+
+    .sub-category label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .filter-toggle {
+        display: block;
+      }
+
+      #filterSidebar {
+        display: none;
+      }
+
+      .filter-container.active #filterSidebar {
+        display: block;
+      }
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4); /* Black background with opacity */
+    }
+
+    .modal-content {
+      background-color: #f9f9f9;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      border-bottom: 2px solid #e76f51;
+      padding-bottom: 10px;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .modal-content .sub-category {
+      margin-left: 20px;
+      padding-left: 10px;
+      border-left: 2px solid #e76f51;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+    }
+
+    /* Responsive Design for Mobile */
+    @media (max-width: 768px) {
+      .modal-content {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        padding: 20px;
+        box-shadow: none;
+      }
+
+      .modal-content h3 {
+        text-align: center;
+      }
+
+      .close {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+      }
+    }
+
+    /* Loading Animation Styles */
+    .loading-container {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 2000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8); /* White background with opacity */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 6px solid #f3f3f3; /* Light gray */
+      border-top: 6px solid #cd2653; /* Accent color */
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-container p {
+      margin-top: 15px;
+      font-size: 16px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Shop</h1>
+  <div class="main-container">
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h3>Search</h3>
+      <input type="text" id="searchInput" placeholder="Search products" oninput="fetchProducts(1)">
+      
+      <div class="filter-container">
+        <button class="filter-toggle" onclick="toggleFilters()">Filters</button>
+        <div class="filter-group" id="filterSidebar">
+          <h3>Categories</h3>
+          <label>
+            <input type="checkbox" onchange="filterCategory('Sian Bouquets')"> Sian Bouquets (87)
+          </label>
+          <div class="sub-category">
+            <label>
+              <input type="checkbox" onchange="filterCategory('Bouquets With Gypsy Rose')"> Bouquets With Gypsy Rose (27)
+            </label>
+            <label>
+              <input type="checkbox" onchange="filterCategory('Easter Bouquets')"> Easter Bouquets (17)
+            </label>
+            <label>
+              <input type="checkbox" onchange="filterCategory('Xmas Bouquets')"> Xmas Bouquets (27)
+            </label>
+          </div>
+          <label>
+            <input type="checkbox" onchange="filterCategory('Spray Roses')"> Spray Roses (60)
+          </label>
+          <div class="sub-category">
+            <label>
+              <input type="checkbox" onchange="filterCategory('Garden Spray Roses')"> Garden Spray Roses (21)
+            </label>
+            <label>
+              <input type="checkbox" onchange="filterCategory('Premium Spray Roses')"> Premium Spray Roses (19)
+            </label>
+            <label>
+              <input type="checkbox" onchange="filterCategory('Regular Spray Roses')"> Regular Spray Roses (20)
+            </label>
+          </div>
+          <label>
+            <input type="checkbox" onchange="filterCategory('Standard Roses')"> Standard Roses (33)
+          </label>
+          <label>
+            <input type="checkbox" onchange="filterCategory('Summer Flowers')"> Summer Flowers (30)
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h3>Filter by Color</h3>
+        <div class="color-filters">
+          <span style="background: green" onclick="filterColor('green')"></span>
+          <span style="background: red" onclick="filterColor('red')"></span>
+          <span style="background: yellow" onclick="filterColor('yellow')"></span>
+          <span style="background: pink" onclick="filterColor('pink')"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="shop-container" id="shop-content"></div>
+
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+
+  <!-- Filter Modal Trigger Button -->
+  <button class="filter-toggle" onclick="openFilterModal()">Filters</button>
+
+  <!-- Filter Modal -->
+  <div id="filterModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeFilterModal()">&times;</span>
+      <h3>Categories</h3>
+      <label>
+        <input type="checkbox" onchange="filterCategory('Sian Bouquets')"> Sian Bouquets (87)
+      </label>
+      <div class="sub-category">
+        <label>
+          <input type="checkbox" onchange="filterCategory('Bouquets With Gypsy Rose')"> Bouquets With Gypsy Rose (27)
+        </label>
+        <label>
+          <input type="checkbox" onchange="filterCategory('Easter Bouquets')"> Easter Bouquets (17)
+        </label>
+        <label>
+          <input type="checkbox" onchange="filterCategory('Xmas Bouquets')"> Xmas Bouquets (27)
+        </label>
+      </div>
+      <label>
+        <input type="checkbox" onchange="filterCategory('Spray Roses')"> Spray Roses (60)
+      </label>
+      <div class="sub-category">
+        <label>
+          <input type="checkbox" onchange="filterCategory('Garden Spray Roses')"> Garden Spray Roses (21)
+        </label>
+        <label>
+          <input type="checkbox" onchange="filterCategory('Premium Spray Roses')"> Premium Spray Roses (19)
+        </label>
+        <label>
+          <input type="checkbox" onchange="filterCategory('Regular Spray Roses')"> Regular Spray Roses (20)
+        </label>
+      </div>
+      <label>
+        <input type="checkbox" onchange="filterCategory('Standard Roses')"> Standard Roses (33)
+      </label>
+      <label>
+        <input type="checkbox" onchange="filterCategory('Summer Flowers')"> Summer Flowers (30)
+      </label>
+    </div>
+  </div>
+
+  <!-- Loading Animation -->
+  <div id="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Products Loading...</p>
+  </div>
+
+  <script>
+    const consumerKey = 'ck_e5db3563616672132f4df568a25e8a1f66bbd2fe';
+    const consumerSecret = 'cs_60c8d5b2cbcb4071532f390d38be1664f0707b2f';
+    let page = 1;
+    const perPage = 16;
+
+    function fetchProducts(page) {
+      const searchTerm = document.getElementById('searchInput').value;
+
+      const url = `https://demo.sianflowers.co.ke/wp-json/wc/v3/products?page=${page}&per_page=${perPage}&status=publish&stock_status=instock&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}${searchTerm ? '&search=' + encodeURIComponent(searchTerm) : ''}`;
+
+      showLoading();
+
+      fetch(url)
+        .then(res => res.json())
+        .then(products => {
+          const container = document.getElementById('shop-content');
+          const pagination = document.getElementById('pagination');
+          container.innerHTML = '';
+          pagination.innerHTML = '';
+
+          if (!products.length) {
+            container.innerHTML = `<p class="no-products">No products found.</p>`;
+            hideLoading();
+            return;
+          }
+
+          products.forEach(product => {
+            container.innerHTML += `
+              <div class="product-card">
+                <img src="${product.images[0]?.src || 'https://via.placeholder.com/300'}" alt="${product.name}">
+                <div class="product-details">
+                  <h3>${product.name}</h3>
+                  <p>${product.price ? product.price + ' ' + (product.currency || '') : 'Price not available'}</p>
+                  <a href="${product.permalink}" target="_blank" class="view-product">View Product</a>
+                </div>
+              </div>
+            `;
+          });
+
+          pagination.innerHTML = `
+            <button onclick="changePage(-1)" ${page <= 1 ? 'disabled' : ''}>Previous</button>
+            <span>Page ${page}</span>
+            <button onclick="changePage(1)">Next</button>
+          `;
+
+          hideLoading();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('shop-content').innerHTML = `<p class="no-products">Failed to load products.</p>`;
+          hideLoading();
+        });
+    }
+
+    function changePage(offset) {
+      page += offset;
+      if (page < 1) page = 1;
+      fetchProducts(page);
+    }
+
+    function filterCategory(category) {
+      alert("Category filter logic can be added here.");
+      // Future enhancement: filter by category via API
+    }
+
+    function filterColor(color) {
+      alert(`Filter by color: ${color}`);
+      // Future enhancement: Add logic to filter products by color
+    }
+
+    function toggleFilters() {
+      const filterContainer = document.querySelector('.filter-container');
+      filterContainer.classList.toggle('active');
+    }
+
+    function openFilterModal() {
+      document.getElementById('filterModal').style.display = 'block';
+    }
+
+    function closeFilterModal() {
+      document.getElementById('filterModal').style.display = 'none';
+    }
+
+    // Show loading animation
+    function showLoading() {
+      document.getElementById('loading').style.display = 'flex';
+    }
+
+    // Hide loading animation
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+      const modal = document.getElementById('filterModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    };
+
+    // Initial load
+    fetchProducts(page);
+
+    
+  </script>
+
+</body>
+</html>
